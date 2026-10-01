@@ -19,6 +19,6 @@ jobs:
         shell: pwsh
         run: |
           # Install straight from the manifest in this checkout (bucket add needs a git URL)
-          scoop install bucket/mangabinder.json
+          scoop install "$PWDbucketmangabinder.json"
           mangabinder --version
           mangabinder --help
