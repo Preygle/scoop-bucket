@@ -1,0 +1,22 @@
+{
+    "version": "0.1.0",
+    "description": "Download manga chapters, convert them to PDF, bind them into volumes and export CBZ - CLI and browser interface.",
+    "homepage": "https://github.com/Preygle/manga-downloader",
+    "license": "MIT",
+    "notes": "Run 'mangabinder' to open the browser interface, or 'mangabinder --help' for the command line.",
+    "architecture": {
+        "64bit": {
+            "url": "https://github.com/Preygle/manga-downloader/releases/download/v0.1.0/mangabinder.exe",
+            "hash": "ab3ff6b818f93175b0d601b63b8d2a00f39d994503889e84cc0ff33da8cd34f1"
+        }
+    },
+    "bin": "mangabinder.exe",
+    "checkver": "github",
+    "autoupdate": {
+        "architecture": {
+            "64bit": {
+                "url": "https://github.com/Preygle/manga-downloader/releases/download/v$version/mangabinder.exe"
+            }
+        }
+    }
+}

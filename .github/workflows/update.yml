@@ -1,0 +1,44 @@
+name: Update
+
+# Every 6 hours: if Preygle/manga-downloader has a newer release, point the
+# manifest at it (the hash comes from GitHub's own SHA-256 of the asset).
+on:
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bump to the latest release
+        id: bump
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          release=$(gh api repos/Preygle/manga-downloader/releases/latest)
+          latest=$(jq -r '.tag_name | ltrimstr("v")' <<< "$release")
+          current=$(jq -r .version bucket/mangabinder.json)
+          echo "current $current, latest $latest"
+          if [ "$latest" = "$current" ]; then exit 0; fi
+          hash=$(jq -r '.assets[] | select(.name == "mangabinder.exe") | .digest | ltrimstr("sha256:")' <<< "$release")
+          test -n "$hash"
+          url="https://github.com/Preygle/manga-downloader/releases/download/v$latest/mangabinder.exe"
+          jq --indent 4 --arg v "$latest" --arg u "$url" --arg h "$hash" \
+            '.version = $v | .architecture."64bit".url = $u | .architecture."64bit".hash = $h' \
+            bucket/mangabinder.json > tmp.json && mv tmp.json bucket/mangabinder.json
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "mangabinder: Update to version $latest"
+          git push
+          echo "updated=true" >> "$GITHUB_OUTPUT"
+      - name: Test the new version
+        if: steps.bump.outputs.updated == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run test.yml --ref "${{ github.ref_name }}"
