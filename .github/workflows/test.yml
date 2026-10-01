@@ -18,7 +18,7 @@ jobs:
       - name: Install mangabinder from this bucket
         shell: pwsh
         run: |
-          scoop bucket add preygle $PWD
-          scoop install preygle/mangabinder
+          # Install straight from the manifest in this checkout (bucket add needs a git URL)
+          scoop install bucket/mangabinder.json
           mangabinder --version
           mangabinder --help
